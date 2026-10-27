@@ -1,12 +1,15 @@
 import { Shape } from './Shape.js';
+import { SvgText } from '../SvgText.js';
 import type { ShapeVisitor } from '../traversal/ShapeVisitor.js';
 
 export class Text extends Shape {
-  constructor(id: string, x: number, y: number, private content: string) { super(id, { x, y }); }
+  constructor(id: string, x: number, y: number, private content: string) {
+    super(id, { x, y }); SvgText.validate(content);
+  }
   get type(): string { return 'text'; }
   override get textContent(): string { return this.content; }
   override set(attribute: string, value: string): void {
-    if (attribute === 'text') this.content = value;
+    if (attribute === 'text') { SvgText.validate(value); this.content = value; }
     else super.set(attribute, value);
   }
   move(dx: number, dy: number): void { this.translate(['x'], ['y'], dx, dy); }

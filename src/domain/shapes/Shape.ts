@@ -1,4 +1,5 @@
 import { Numeric } from '../Numeric.js';
+import { SvgText } from '../SvgText.js';
 import type { ShapeVisitor } from '../traversal/ShapeVisitor.js';
 import type { Group } from './Group.js';
 
@@ -35,7 +36,12 @@ export abstract class Shape {
   asGroup(): Group { throw new Error(`not a container: ${this.id}`); }
 
   /** Membership is changed only by Group's checked insert/remove operations. */
-  attachTo(parent: Group | undefined): void { this.parentNode = parent; }
+  attachTo(parent: Group | undefined): void {
+    if ((parent && !parent.children.includes(this)) || (!parent && this.parentNode?.children.includes(this))) {
+      throw new Error('membership must be changed through a container');
+    }
+    this.parentNode = parent;
+  }
 
   value(key: string): number {
     const value = this.geometry.get(key);
@@ -111,6 +117,7 @@ export abstract class Shape {
   }
 
   private static validatePresentation(value: string): void {
+    SvgText.validate(value);
     if (!value.trim() || /(?:url\s*\(|var\s*\(|inherit|currentColor|context-fill|context-stroke|unset|revert|initial)/i.test(value)) {
       throw new Error(`unsupported presentation value: ${value}`);
     }

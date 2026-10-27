@@ -81,3 +81,16 @@ test('geometry and attribute constraints are enforced', () => {
   assert.throws(() => rectangle.scale(0), /positive/);
   assert.equal(rectangle.attributes().fill, undefined);
 });
+
+test('parent membership cannot be detached or assigned independently of child lists', () => {
+  const group = new Group('g');
+  const other = new Group('other');
+  const rectangle = new Rect('r', 0, 0, 1, 1);
+  group.insert(rectangle);
+  assert.throws(() => rectangle.attachTo(undefined), /membership/);
+  assert.throws(() => rectangle.attachTo(other), /membership/);
+  assert.equal(rectangle.parent, group);
+  assert.equal(group.children[0], rectangle);
+  group.remove(rectangle);
+  assert.equal(rectangle.parent, undefined);
+});
